@@ -24,12 +24,19 @@ export default function SignUp() {
         body: JSON.stringify({ name, email, password })
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = text;
+      }
+
       if (res.ok) {
-        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('user', JSON.stringify(data.user || data));
         window.location.href = '/'; 
       } else {
-        setError(data || 'Registration failed');
+        setError(data.message || data || 'Registration failed');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');

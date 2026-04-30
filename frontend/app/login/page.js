@@ -23,13 +23,19 @@ export default function Login() {
         body: JSON.stringify({ email, password })
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = text;
+      }
+
       if (res.ok) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-        // Force reload to update header state
+        localStorage.setItem('user', JSON.stringify(data.user || data));
         window.location.href = '/'; 
       } else {
-        setError(data || 'Login failed');
+        setError(data.message || data || 'Login failed');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');

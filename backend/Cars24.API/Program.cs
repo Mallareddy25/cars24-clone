@@ -47,8 +47,19 @@ builder.Services.AddCors(options =>
 });
 
 // Configure Entity Framework Core with PostgreSQL
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Parse Render's postgresql:// URL format to ADO.NET format if needed
+if (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("postgres"))
+{
+    var uri = new Uri(connectionString);
+    var userInfo = uri.UserInfo.Split(':');
+    
+    connectionString = $"Host={uri.Host};Port={(uri.Port > 0 ? uri.Port : 5432)};Database={uri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SslMode=Require;TrustServerCertificate=true;";
+}
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 var app = builder.Build();
 

@@ -35,6 +35,7 @@ export default function Home() {
 
   const fetchCars = async (searchQuery, activeFilters, location) => {
     setLoading(true);
+    const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005';
     try {
       const queryParams = new URLSearchParams({
         search: searchQuery || '',
@@ -43,10 +44,10 @@ export default function Home() {
         lng: location?.lng || ''
       });
       
-      const res = await fetch(`http://localhost:5005/api/cars/search?${queryParams.toString()}`);
+      const res = await fetch(`${API}/api/cars/search?${queryParams.toString()}`);
       if (res.ok) setCars(await res.json());
 
-      const topRes = await fetch(`http://localhost:5005/api/cars/top-selling`);
+      const topRes = await fetch(`${API}/api/cars/top-selling`);
       if (topRes.ok) setTopCars(await topRes.json());
       
     } catch (err) {
@@ -57,12 +58,13 @@ export default function Home() {
   };
 
   const fetchLocationData = async (cityFilter) => {
+    const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005';
     try {
       const cityQuery = cityFilter ? `?city=${cityFilter}` : '';
-      const scRes = await fetch(`http://localhost:5005/api/locations/service-centers${cityQuery}`);
+      const scRes = await fetch(`${API}/api/locations/service-centers${cityQuery}`);
       if (scRes.ok) setServiceCenters(await scRes.json());
 
-      const ppRes = await fetch(`http://localhost:5005/api/locations/pickup-points${cityQuery}`);
+      const ppRes = await fetch(`${API}/api/locations/pickup-points${cityQuery}`);
       if (ppRes.ok) setPickupPoints(await ppRes.json());
     } catch (err) {
       console.error("Failed to fetch location data", err);

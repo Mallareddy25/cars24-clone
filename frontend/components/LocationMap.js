@@ -21,8 +21,20 @@ const options = {
 };
 
 export default function LocationMap({ cars, serviceCenters, pickupPoints, center }) {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  // If no API key is configured (e.g. on Netlify without the env var), show a placeholder
+  if (!apiKey) {
+    return (
+      <div style={{ width: '100%', height: '400px', borderRadius: '8px', background: '#e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b', gap: '1rem' }}>
+        <span style={{ fontSize: '3rem' }}>🗺️</span>
+        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>Map unavailable — Google Maps API key not configured.</p>
+      </div>
+    );
+  }
+
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: apiKey,
   });
 
   const [selectedElement, setSelectedElement] = useState(null);

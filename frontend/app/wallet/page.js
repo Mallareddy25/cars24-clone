@@ -16,7 +16,7 @@ export default function WalletPage() {
 
   const fetchWallet = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}`, { cache: 'no-store' });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}/api/wallet/${mockUserId}`, { cache: 'no-store' });
       if (res.ok) {
         setWallet(await res.json());
       }
@@ -31,7 +31,7 @@ export default function WalletPage() {
     setRedeeming(true);
     setRedeemMsg('');
     try {
-      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005') + '', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}/api/wallet/redeem`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: mockUserId, points: 500 }) // Hardcoded 500 points to redeem for demo

@@ -62,7 +62,7 @@ export default function SellCar() {
     }
 
     try {
-      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005') + '', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}/api/sell/submit`, {
         method: 'POST',
         // Omit Content-Type to let the browser automatically set the multipart boundary
         body: submitData

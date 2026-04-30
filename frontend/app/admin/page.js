@@ -12,13 +12,13 @@ export default function AdminDashboard() {
     async function fetchAdminData() {
       setLoading(true);
       try {
-        const statsRes = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005') + '');
+        const statsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}/api/admin/stats`);
         if (statsRes.ok) setStats(await statsRes.json());
 
-        const usersRes = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005') + '');
+        const usersRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}/api/admin/users`);
         if (usersRes.ok) setUsers(await usersRes.json());
 
-        const leadsRes = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005') + '');
+        const leadsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}/api/admin/leads`);
         if (leadsRes.ok) setLeads(await leadsRes.json());
       } catch (err) {
         console.error("Failed to fetch admin data", err);

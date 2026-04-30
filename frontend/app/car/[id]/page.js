@@ -24,7 +24,7 @@ export default function CarDetailsPage({ params }) {
       try {
         setLoading(true);
         // Fetch base car details
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}/api/cars/${params.id}`);
         if (!res.ok) {
           setCar(null);
           setLoading(false);
@@ -45,7 +45,7 @@ export default function CarDetailsPage({ params }) {
         setCar(data);
 
         // Fetch dynamic pricing
-        const pricingRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}`);
+        const pricingRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}/api/pricing/${params.id}?season=${season}`);
         if (pricingRes.ok) {
           const pricingData = await pricingRes.json();
           setPricing(pricingData);
@@ -56,7 +56,7 @@ export default function CarDetailsPage({ params }) {
         const simulatedKmDriven = age * 18000; // Simulating 18k km per year
         
         try {
-          const maintRes = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005') + '', {
+          const maintRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}/api/maintenance/estimate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -90,7 +90,7 @@ export default function CarDetailsPage({ params }) {
   // Chat System Methods
   const fetchMessages = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}/api/messages/${params.id}`);
       if (res.ok) {
         setMessages(await res.json());
       }
@@ -122,7 +122,7 @@ export default function CarDetailsPage({ params }) {
     
     setSendingMsg(true);
     try {
-      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005') + '', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}/api/messages/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ carId: parseInt(params.id), content: newMessage })

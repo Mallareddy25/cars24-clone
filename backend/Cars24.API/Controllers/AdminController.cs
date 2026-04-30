@@ -59,5 +59,21 @@ namespace Cars24.API.Controllers
 
             return Ok(leads);
         }
+        [HttpGet("setup")]
+        public async Task<IActionResult> SetupDatabase()
+        {
+            try
+            {
+                var created = await _context.Database.EnsureCreatedAsync();
+                if (created)
+                    return Ok("✅ Database tables created successfully!");
+                else
+                    return Ok("ℹ️ Database tables already exist.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ Error: {ex.Message}");
+            }
+        }
     }
 }

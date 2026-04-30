@@ -12,17 +12,24 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IPricingService, PricingService>();
 builder.Services.AddScoped<IFirebaseNotificationService, FirebaseNotificationService>();
 
-// Initialize Firebase (wrapped in try-catch for dummy key usage)
-try
+// Initialize Firebase (only if key file exists)
+if (File.Exists("firebase-key.json"))
 {
-    FirebaseApp.Create(new AppOptions()
+    try
     {
-        Credential = GoogleCredential.FromFile("firebase-key.json")
-    });
+        FirebaseApp.Create(new AppOptions()
+        {
+            Credential = GoogleCredential.FromFile("firebase-key.json")
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[WARNING] Firebase failed to initialize: {ex.Message}");
+    }
 }
-catch (Exception ex)
+else
 {
-    Console.WriteLine($"[WARNING] Firebase failed to initialize with dummy key: {ex.Message}");
+    Console.WriteLine("[INFO] firebase-key.json not found. Firebase notifications disabled.");
 }
 
 // Configure CORS to allow Next.js frontend
@@ -58,7 +65,8 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-app.UseHttpsRedirection();
+// NOTE: Removed UseHttpsRedirection - Render handles HTTPS at the load balancer level
+// app.UseHttpsRedirection();
 
 app.UseCors("AllowNextJs");
 

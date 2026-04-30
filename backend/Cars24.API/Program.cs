@@ -52,12 +52,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
-// Auto-create database tables on startup (no migrations needed)
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.EnsureCreated();
-}
+// NOTE: EnsureCreated() removed - tables will be created via Render Shell
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

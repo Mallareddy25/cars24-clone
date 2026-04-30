@@ -10,48 +10,48 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-// Initialize Firebase only once
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-let messaging;
+// Check if Firebase is configured before initializing
+const isFirebaseConfigured = !!(firebaseConfig.apiKey && firebaseConfig.projectId);
 
-if (typeof window !== "undefined") {
-  messaging = getMessaging(app);
+let app = null;
+let messaging = null;
+
+if (isFirebaseConfigured) {
+  try {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    if (typeof window !== "undefined") {
+      messaging = getMessaging(app);
+    }
+  } catch (e) {
+    console.warn("Firebase initialization failed (missing config):", e);
+  }
 }
 
 export const requestForToken = async () => {
-  if (typeof window !== "undefined") {
-    try {
-      const currentToken = await getToken(messaging, { 
-        vapidKey: 'YOUR_PUBLIC_VAPID_KEY_HERE' // Replace with real VAPID key later 
-      });
-      if (currentToken) {
-        console.log('FCM Token generated:', currentToken);
-        // Send token to backend
-        await fetch('http://localhost:5005/api/notifications/token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ token: currentToken }),
-        });
-        return currentToken;
-      } else {
-        console.log('No registration token available. Request permission to generate one.');
-      }
-    } catch (err) {
-      console.log('[MOCK] FCM token generation failed (expected with dummy keys)', err);
+  if (!messaging || typeof window === "undefined") return null;
+  try {
+    const currentToken = await getToken(messaging, {
+      vapidKey: 'YOUR_PUBLIC_VAPID_KEY_HERE'
+    });
+    if (currentToken) {
+      console.log('FCM Token generated:', currentToken);
+      return currentToken;
     }
+  } catch (err) {
+    console.log('[MOCK] FCM token generation failed (expected with dummy keys)', err);
   }
+  return null;
 };
 
 export const onMessageListener = () =>
-  new Promise((resolve) => {
-    if (typeof window !== "undefined") {
-      onMessage(messaging, (payload) => {
-        console.log("Foreground notification received:", payload);
-        resolve(payload);
-      });
+  new Promise((resolve, reject) => {
+    if (!messaging || typeof window === "undefined") {
+      return reject("Firebase messaging not initialized");
     }
+    onMessage(messaging, (payload) => {
+      console.log("Foreground notification received:", payload);
+      resolve(payload);
+    });
   });
 
 export { app, messaging };

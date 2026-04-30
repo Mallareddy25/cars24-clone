@@ -17,7 +17,7 @@ export default function PreferencesPage() {
   useEffect(() => {
     async function loadPrefs() {
       try {
-        const res = await fetch('http://localhost:5005/api/notifications/preferences', {
+        const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005') + '', {
           cache: 'no-store'
         });
         if (res.ok) {
@@ -46,7 +46,7 @@ export default function PreferencesPage() {
     setSaving(true);
     setSuccessMsg('');
     try {
-      const res = await fetch('http://localhost:5005/api/notifications/preferences', {
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005') + '', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(prefs)
@@ -63,7 +63,7 @@ export default function PreferencesPage() {
 
   const handleTestNotification = async (type) => {
     try {
-      const res = await fetch('http://localhost:5005/api/notifications/send', {
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005') + '', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

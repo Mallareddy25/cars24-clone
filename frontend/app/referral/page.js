@@ -14,7 +14,7 @@ export default function ReferralPage() {
   useEffect(() => {
     async function fetchReferral() {
       try {
-        const res = await fetch(`http://localhost:5005/api/referral/${mockUserId}`, { cache: 'no-store' });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}`, { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           setReferral(data);
@@ -40,7 +40,7 @@ export default function ReferralPage() {
     setTestMode(true);
     setTestResult('');
     try {
-      const res = await fetch('http://localhost:5005/api/referral/apply', {
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005') + '', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -54,7 +54,7 @@ export default function ReferralPage() {
         setTestResult('Success! A new user applied your code. Check your wallet for 1000 points!');
         
         // Refresh referral stats
-        const refRes = await fetch(`http://localhost:5005/api/referral/${mockUserId}`, { cache: 'no-store' });
+        const refRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005'}`, { cache: 'no-store' });
         if (refRes.ok) {
           setReferral(await refRes.json());
         }

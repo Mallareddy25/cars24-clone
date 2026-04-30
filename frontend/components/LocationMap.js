@@ -21,7 +21,13 @@ const options = {
 };
 
 export default function LocationMap({ cars, serviceCenters, pickupPoints, center }) {
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+
+  // Hooks must always be called at the top level, before any early returns
+  const [selectedElement, setSelectedElement] = useState(null);
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: apiKey,
+  });
 
   // If no API key is configured (e.g. on Netlify without the env var), show a placeholder
   if (!apiKey) {
@@ -32,12 +38,6 @@ export default function LocationMap({ cars, serviceCenters, pickupPoints, center
       </div>
     );
   }
-
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: apiKey,
-  });
-
-  const [selectedElement, setSelectedElement] = useState(null);
 
   if (loadError) return <div>Error loading maps. Check your API key.</div>;
   if (!isLoaded) return <div>Loading Maps...</div>;

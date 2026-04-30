@@ -65,10 +65,25 @@ namespace Cars24.API.Controllers
             try
             {
                 var created = await _context.Database.EnsureCreatedAsync();
-                if (created)
-                    return Ok("✅ Database tables created successfully!");
-                else
-                    return Ok("ℹ️ Database tables already exist.");
+                
+                // Add dummy cars if inventory is empty
+                if (!await _context.Cars.AnyAsync())
+                {
+                    var dummyCars = new List<Car>
+                    {
+                        new Car { Brand = "Maruti", Name = "Swift DZire", Year = 2021, Price = 650000, FuelType = "Petrol", Transmission = "Manual", Mileage = 22, City = "Hyderabad" },
+                        new Car { Brand = "Honda", Name = "City", Year = 2022, Price = 1250000, FuelType = "Petrol", Transmission = "Automatic", Mileage = 18, City = "Bangalore" },
+                        new Car { Brand = "Hyundai", Name = "Creta", Year = 2023, Price = 1500000, FuelType = "Diesel", Transmission = "Automatic", Mileage = 17, City = "Mumbai" },
+                        new Car { Brand = "Tata", Name = "Nexon", Year = 2022, Price = 950000, FuelType = "EV", Transmission = "Automatic", Mileage = 312, City = "Delhi" },
+                        new Car { Brand = "Mahindra", Name = "Thar", Year = 2023, Price = 1650000, FuelType = "Diesel", Transmission = "Manual", Mileage = 15, City = "Pune" }
+                    };
+                    
+                    _context.Cars.AddRange(dummyCars);
+                    await _context.SaveChangesAsync();
+                    return Ok("✅ Database setup and seeded with dummy cars successfully!");
+                }
+
+                return Ok("ℹ️ Database already exists and has data.");
             }
             catch (Exception ex)
             {

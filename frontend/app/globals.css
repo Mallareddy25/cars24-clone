@@ -285,3 +285,108 @@ nav a:hover {
   color: var(--text-light);
   font-size: 1.1rem;
 }
+
+/* =====================
+   MOBILE RESPONSIVE
+   ===================== */
+
+@media (max-width: 768px) {
+  /* Page containers */
+  .page-container {
+    padding: 1rem;
+  }
+
+  /* Hero section */
+  .hero-section {
+    padding: 2.5rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-section h1 {
+    font-size: 1.8rem;
+    line-height: 1.2;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+  }
+
+  /* Main layout: stack filters on top of cars */
+  .main-content {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Car grid: 1 column on small screens */
+  .car-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Filters panel: horizontal scrollable badges on mobile */
+  .filters-panel {
+    padding: 1rem;
+  }
+
+  /* Car detail page two-column grid */
+  .car-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Admin sidebar hide on mobile */
+  .admin-sidebar {
+    width: 100% !important;
+    flex-direction: row !important;
+    overflow-x: auto;
+  }
+
+  /* Form inputs bigger tap targets */
+  input, select, textarea, button[type="submit"] {
+    font-size: 16px !important; /* Prevents iOS zoom */
+  }
+
+  /* Login / Signup cards full width */
+  .auth-card {
+    padding: 1.5rem !important;
+    margin: 1rem !important;
+  }
+
+  /* Chat window full screen on mobile */
+  .chat-window {
+    bottom: 0 !important;
+    right: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    border-radius: 16px 16px 0 0 !important;
+    height: 70vh !important;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 1.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Tables scroll horizontally */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section h1 {
+    font-size: 1.5rem;
+  }
+
+  .car-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .car-price {
+    font-size: 1.25rem;
+  }
+}
+

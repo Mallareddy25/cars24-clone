@@ -7,6 +7,30 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [approving, setApproving] = useState(null);
+
+  const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005';
+
+  const approveLead = async (leadId) => {
+    setApproving(leadId);
+    try {
+      const res = await fetch(`${API}/api/admin/approve-lead/${leadId}`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`✅ ${data.message}`);
+        // Refresh leads
+        const leadsRes = await fetch(`${API}/api/admin/leads`);
+        if (leadsRes.ok) setLeads(await leadsRes.json());
+      } else {
+        alert(`❌ Failed: ${data}`);
+      }
+    } catch (e) {
+      alert('Error approving lead');
+    } finally {
+      setApproving(null);
+    }
+  };
+
 
   useEffect(() => {
     async function fetchAdminData() {
@@ -112,6 +136,7 @@ export default function AdminDashboard() {
                     <th style={{ padding: '1rem' }}>Expected Price</th>
                     <th style={{ padding: '1rem' }}>Status</th>
                     <th style={{ padding: '1rem' }}>Submitted</th>
+                    <th style={{ padding: '1rem' }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -133,11 +158,23 @@ export default function AdminDashboard() {
                         <div>{l.mileage} km</div>
                         <div>{l.city}</div>
                       </td>
-                      <td style={{ padding: '1rem', fontWeight: 600, color: '#10b981' }}>₹{l.expectedPrice.toLocaleString()}</td>
+                      <td style={{ padding: '1rem', fontWeight: 600, color: '#10b981' }}>₹{l.expectedPrice?.toLocaleString()}</td>
                       <td style={{ padding: '1rem' }}>
-                        <span style={{ background: '#fef3c7', color: '#d97706', padding: '0.3rem 0.8rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600 }}>{l.status}</span>
+                        <span style={{ background: l.status === 'Approved' ? '#dcfce7' : '#fef3c7', color: l.status === 'Approved' ? '#166534' : '#d97706', padding: '0.3rem 0.8rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600 }}>{l.status}</span>
                       </td>
                       <td style={{ padding: '1rem', color: '#64748b' }}>{formatDate(l.createdAt)}</td>
+                      <td style={{ padding: '1rem' }}>
+                        {l.status !== 'Approved' && (
+                          <button
+                            onClick={() => approveLead(l.id)}
+                            disabled={approving === l.id}
+                            style={{ background: '#10b981', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem', opacity: approving === l.id ? 0.6 : 1 }}
+                          >
+                            {approving === l.id ? 'Approving...' : '✅ Approve → Live'}
+                          </button>
+                        )}
+                        {l.status === 'Approved' && <span style={{ color: '#10b981', fontWeight: 600 }}>🟢 Live</span>}
+                      </td>
                     </tr>
                   ))}
                   {leads.length === 0 && <tr><td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>No leads found.</td></tr>}

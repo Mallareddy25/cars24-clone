@@ -38,7 +38,7 @@ export default function Home() {
     const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5005';
     try {
       const queryParams = new URLSearchParams({
-        search: searchQuery || '',
+        query: searchQuery || '',   // backend expects 'query' not 'search'
         ...activeFilters,
         lat: location?.lat || '',
         lng: location?.lng || ''

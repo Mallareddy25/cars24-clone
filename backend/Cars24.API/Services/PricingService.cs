@@ -60,10 +60,20 @@ namespace Cars24.API.Services
         private string InferCarType(Models.Car car)
         {
             var name = car.Name.ToLower();
-            if (name.Contains("creta") || name.Contains("thar") || name.Contains("nexon")) return "SUV";
-            if (name.Contains("dzire") || name.Contains("city")) return "Sedan";
-            if (name.Contains("baleno")) return "Hatchback";
-            if (car.FuelType.ToLower() == "electric") return "Electric";
+            var brand = car.Brand.ToLower();
+
+            if (name.Contains("creta") || name.Contains("thar") || name.Contains("nexon") || 
+                name.Contains("fortuner") || name.Contains("harrier") || name.Contains("seltos") || 
+                name.Contains("sonet")) return "SUV";
+            
+            if (name.Contains("dzire") || name.Contains("city") || name.Contains("verna") || 
+                name.Contains("innova")) return "Sedan"; // Innova is MPV but Sedan-like in pricing
+            
+            if (name.Contains("baleno") || name.Contains("i20") || name.Contains("swift") || 
+                name.Contains("alto")) return "Hatchback";
+
+            if (car.FuelType.ToLower().Contains("ev") || car.FuelType.ToLower().Contains("electric")) return "Electric";
+            
             return "Hatchback"; // Default fallback
         }
     }

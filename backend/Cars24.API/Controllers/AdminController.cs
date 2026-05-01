@@ -85,10 +85,25 @@ namespace Cars24.API.Controllers
 
                     _context.Cars.AddRange(dummyCars);
                     await _context.SaveChangesAsync();
-                    return Ok("✅ Database seeded with 8 dummy cars across Indian cities!");
                 }
 
-                return Ok("ℹ️ Database already exists and has data.");
+                // Add Pricing Rules if empty
+                if (!await _context.PricingRules.AnyAsync())
+                {
+                    var rules = new List<PricingRule>
+                    {
+                        new PricingRule { CarType = "SUV", Region = "Mumbai", Season = "Monsoon", Multiplier = 1.15, Reason = "High demand for sturdy SUVs during heavy Mumbai rains." },
+                        new PricingRule { CarType = "SUV", Region = "All", Season = "Monsoon", Multiplier = 1.10, Reason = "Increased demand for off-road capabilities in wet conditions." },
+                        new PricingRule { CarType = "Sedan", Region = "All", Season = "Summer", Multiplier = 1.08, Reason = "Summer travel season spike for comfortable sedans." },
+                        new PricingRule { CarType = "All", Region = "All", Season = "Fuel Spike", Multiplier = 0.92, Reason = "Market slowdown due to rising fuel costs." },
+                        new PricingRule { CarType = "Electric", Region = "All", Season = "Fuel Spike", Multiplier = 1.20, Reason = "Surge in EV interest as petrol prices skyrocket!" },
+                        new PricingRule { CarType = "Hatchback", Region = "Delhi", Season = "Summer", Multiplier = 1.12, Reason = "High demand for small city cars in NCR summer heat." }
+                    };
+                    _context.PricingRules.AddRange(rules);
+                    await _context.SaveChangesAsync();
+                }
+
+                return Ok("✅ Database setup and seeded with cars and pricing rules successfully!");
             }
             catch (Exception ex)
             {
@@ -102,9 +117,9 @@ namespace Cars24.API.Controllers
         {
             try
             {
-                // Remove all existing cars
-                var existing = _context.Cars.ToList();
-                _context.Cars.RemoveRange(existing);
+                // Remove all existing cars and rules
+                _context.Cars.RemoveRange(_context.Cars);
+                _context.PricingRules.RemoveRange(_context.PricingRules);
                 await _context.SaveChangesAsync();
 
                 var cars = new List<Car>
@@ -130,9 +145,21 @@ namespace Cars24.API.Controllers
                 };
 
                 _context.Cars.AddRange(cars);
+                
+                var rules = new List<PricingRule>
+                {
+                    new PricingRule { CarType = "SUV", Region = "Mumbai", Season = "Monsoon", Multiplier = 1.15, Reason = "High demand for sturdy SUVs during heavy Mumbai rains." },
+                    new PricingRule { CarType = "SUV", Region = "All", Season = "Monsoon", Multiplier = 1.10, Reason = "Increased demand for off-road capabilities in wet conditions." },
+                    new PricingRule { CarType = "Sedan", Region = "All", Season = "Summer", Multiplier = 1.08, Reason = "Summer travel season spike for comfortable sedans." },
+                    new PricingRule { CarType = "All", Region = "All", Season = "Fuel Spike", Multiplier = 0.92, Reason = "Market slowdown due to rising fuel costs." },
+                    new PricingRule { CarType = "Electric", Region = "All", Season = "Fuel Spike", Multiplier = 1.20, Reason = "Surge in EV interest as petrol prices skyrocket!" },
+                    new PricingRule { CarType = "Hatchback", Region = "Delhi", Season = "Summer", Multiplier = 1.12, Reason = "High demand for small city cars in NCR summer heat." }
+                };
+                _context.PricingRules.AddRange(rules);
+                
                 await _context.SaveChangesAsync();
 
-                return Ok($"✅ Reseeded with {cars.Count} cars across 6 Indian cities (2 per city)!");
+                return Ok($"✅ Reseeded with {cars.Count} cars and {rules.Count} pricing rules successfully!");
             }
             catch (Exception ex)
             {

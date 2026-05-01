@@ -202,6 +202,7 @@ export default function CarDetailsPage({ params }) {
               <select value={season} onChange={(e) => setSeason(e.target.value)} style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd' }}>
                 <option value="All">Standard Season</option>
                 <option value="Monsoon">Monsoon Season</option>
+                <option value="Summer">Summer Season</option>
                 <option value="Fuel Spike">Fuel Spike</option>
               </select>
             </div>

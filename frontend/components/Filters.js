@@ -15,10 +15,12 @@ export default function Filters({ filters, onFilterChange }) {
         <select name="city" id="city" value={filters.city || ''} onChange={handleChange}>
           <option value="">Use My Location (GPS)</option>
           <option value="All">All Cities (Anywhere)</option>
-          <option value="New Delhi">New Delhi</option>
+          <option value="Delhi">Delhi</option>
           <option value="Mumbai">Mumbai</option>
           <option value="Bangalore">Bangalore</option>
+          <option value="Hyderabad">Hyderabad</option>
           <option value="Chennai">Chennai</option>
+          <option value="Pune">Pune</option>
         </select>
       </div>
 
@@ -28,7 +30,7 @@ export default function Filters({ filters, onFilterChange }) {
           <option value="">All</option>
           <option value="Petrol">Petrol</option>
           <option value="Diesel">Diesel</option>
-          <option value="Electric">Electric</option>
+          <option value="EV">Electric / EV</option>
           <option value="CNG">CNG</option>
         </select>
       </div>

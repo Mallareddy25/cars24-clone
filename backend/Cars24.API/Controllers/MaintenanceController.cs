@@ -23,18 +23,18 @@ namespace Cars24.API.Controllers
         [HttpPost("estimate")]
         public async Task<IActionResult> EstimateMaintenance([FromBody] MaintenanceEstimateRequest req)
         {
-            // Fetch base costs
+            // Fetch base costs from DB, or use smart fallback if table is empty
             var baseCost = await _context.MaintenanceCosts
                 .FirstOrDefaultAsync(m => m.Brand == req.Brand && (m.Model == req.Model || m.Model == "All"));
 
             if (baseCost == null)
-            {
                 baseCost = await _context.MaintenanceCosts.FirstOrDefaultAsync(m => m.Brand == "Default");
-            }
 
-            if (baseCost == null) return StatusCode(500, "Base maintenance costs not found.");
+            // Hardcoded fallback — so it NEVER returns 500 even on a fresh DB
+            int baseMonthly = baseCost?.BaseMonthlyEstimate ?? GetDefaultBaseCost(req.Brand);
+            int majorServiceInterval = baseCost?.MajorServiceIntervalKm ?? 10000;
 
-            int estimatedCost = baseCost.BaseMonthlyEstimate;
+            int estimatedCost = baseMonthly;
             string conditionTag = "Standard Maintenance";
             List<string> insights = new List<string>();
 
@@ -43,19 +43,19 @@ namespace Cars24.API.Controllers
 
             if (isOld && isHighMileage)
             {
-                estimatedCost = (int)(estimatedCost * 1.7); // +70%
+                estimatedCost = (int)(estimatedCost * 1.7);
                 conditionTag = "High Maintenance Expected";
                 insights.Add("Vehicle is both older than 5 years and has high mileage. Prepare for major wear-and-tear repairs.");
             }
             else if (isHighMileage)
             {
-                estimatedCost = (int)(estimatedCost * 1.4); // +40%
+                estimatedCost = (int)(estimatedCost * 1.4);
                 conditionTag = "Elevated Maintenance (Mileage)";
                 insights.Add("High mileage detected. Suspension components and timing belt should be inspected immediately.");
             }
             else if (isOld)
             {
-                estimatedCost = (int)(estimatedCost * 1.3); // +30%
+                estimatedCost = (int)(estimatedCost * 1.3);
                 conditionTag = "Elevated Maintenance (Age)";
                 insights.Add("Vehicle is older than 5 years. Rubber components (hoses, belts) are prone to degradation.");
             }
@@ -64,40 +64,51 @@ namespace Cars24.API.Controllers
                 insights.Add("Vehicle is relatively new with low mileage. Stick to regular oil changes and fluid top-ups.");
             }
 
-            // Next service interval calculation
-            int nextServiceAt = ((req.KmDriven / baseCost.MajorServiceIntervalKm) + 1) * baseCost.MajorServiceIntervalKm;
+            int nextServiceAt = ((req.KmDriven / majorServiceInterval) + 1) * majorServiceInterval;
             int kmUntilNextService = nextServiceAt - req.KmDriven;
             insights.Add($"Next major service due in {kmUntilNextService:N0} km (at {nextServiceAt:N0} km).");
 
             if (req.KmDriven > 40000 && req.KmDriven < 50000)
-            {
                 insights.Add("Brake pads likely need replacement soon based on average wear patterns.");
-            }
             else if (req.KmDriven > 30000 && req.KmDriven < 40000)
-            {
                 insights.Add("Tire replacement expected soon based on current mileage.");
-            }
 
-            // Log Insight
-            var insightRecord = new MaintenanceInsight
+            // Log insight (best-effort — don't fail the request if this fails)
+            try
             {
-                CarId = req.CarId,
-                ConditionTag = conditionTag,
-                EstimatedMonthlyCost = estimatedCost,
-                Insights = JsonSerializer.Serialize(insights)
-            };
-            
-            _context.MaintenanceInsights.Add(insightRecord);
-            await _context.SaveChangesAsync();
+                var insightRecord = new MaintenanceInsight
+                {
+                    CarId = req.CarId,
+                    ConditionTag = conditionTag,
+                    EstimatedMonthlyCost = estimatedCost,
+                    Insights = System.Text.Json.JsonSerializer.Serialize(insights)
+                };
+                _context.MaintenanceInsights.Add(insightRecord);
+                await _context.SaveChangesAsync();
+            }
+            catch { /* Ignore logging errors */ }
 
             return Ok(new
             {
-                baseCost = baseCost.BaseMonthlyEstimate,
+                baseCost = baseMonthly,
                 estimatedMonthlyCost = estimatedCost,
                 conditionTag,
                 insights
             });
         }
+
+        private int GetDefaultBaseCost(string brand) => brand?.ToLower() switch
+        {
+            "toyota" => 4500,
+            "honda" => 3800,
+            "hyundai" => 3500,
+            "maruti" => 3000,
+            "tata" => 3200,
+            "mahindra" => 4000,
+            "kia" => 3700,
+            "ford" => 4200,
+            _ => 3500  // generic default
+        };
     }
 
     public class MaintenanceEstimateRequest
